@@ -15,3 +15,7 @@ alias hpsh="git push heroku" #push to origin specifying branch, ex. gpsh master
 alias hpll="git pull heroku" #pull from origin specifying branch, ex. gpll master
 alias gcm="git commit -m" #commit files
 alias rs="rails server" #run rails server
+
+function t() {
+  tree -I '.git|node_modules|bower_components|.DS_Store' --dirsfirst --filelimit 20 -L ${1:-3} -aC $2
+}
