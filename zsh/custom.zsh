@@ -3,6 +3,8 @@ alias zshconfig="source ~/.zshrc"
 alias ohmyzsh="source ~/.oh-my-zsh"
 alias subl="subl ."
 
+alias ls='colorls -r -1'
+alias brewup='brew update; brew upgrade; brew prune; brew cleanup; brew doctor'
 #Custom git aliases
 alias gs="git status"
 alias gc="git clone"
