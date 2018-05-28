@@ -3,11 +3,12 @@
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="gitster"
 
-
 #Custom git aliases
 alias zshconfig="source ~/.zshrc"
 alias ohmyzsh="source ~/.oh-my-zsh"
 alias subl="subl ."
+alias code="code ."
+alias vs="code ."
 alias brewup='brew update; brew upgrade; brew prune; brew cleanup; brew doctor'
 alias gs="git status"
 alias gc="git clone"
