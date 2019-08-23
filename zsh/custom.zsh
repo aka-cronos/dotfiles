@@ -24,3 +24,5 @@ alias hpsh="git push heroku" #push to origin specifying branch in heroku, ex. gp
 alias hpll="git pull heroku" #pull from origin specifying branch in heroku, ex. gpll master
 alias gcm="git commit -m" #commit files
 alias rs="rails server" #run rails server
+alias startpg="brew services start postgresql"
+alias stoppg="brew services stop postgresql"
