@@ -24,3 +24,4 @@ alias gcm="git commit -m" #commit files with message
 alias rs="rails server" #run rails server
 alias startpg="brew services start postgresql" #start postgres
 alias stoppg="brew services stop postgresql" #stop postgres
+alias startphp="php -S 127.0.0.1:8080" #Start Php local server
