@@ -2,7 +2,7 @@
 ZSH_THEME="gitster"
 
 #Custom git aliases
-alias zshconfig="source ~/.zshrc"
+alias restartzsh="source ~/.zshrc"
 alias ohmyzsh="source ~/.oh-my-zsh"
 alias subl="subl ."
 alias code="code ."
