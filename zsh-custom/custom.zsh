@@ -21,6 +21,8 @@ alias hpll="git pull heroku" #pull from heroku specifying branch, ex. gpll maste
 alias gcm="git commit -m" #commit files with message
 alias startpg="brew services start postgresql" #start postgres
 alias stoppg="brew services stop postgresql" #stop postgres
+alias startMongo="brew services start mongodb-community" #start mongo
+alias stopMongo="brew services stop mongodb-community" #stop mongo
 
 # Plugins
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting zsh-autocomplete)
