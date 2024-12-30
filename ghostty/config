@@ -1,0 +1,7 @@
+font-family = "Fira Code"
+theme = MaterialOcean
+font-size = 16
+adjust-cell-height = 25%
+window-save-state = always
+window-padding-balance = true
+adjust-cursor-thickness = 2
