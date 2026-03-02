@@ -1,6 +1,10 @@
 # Remove the last login message
 touch ~/.hushlogin
 
+# Plugins
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting)
+
+
 # Custom default folder
 cd $HOME/Documents/Code
 
