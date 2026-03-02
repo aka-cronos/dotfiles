@@ -4,7 +4,7 @@ ZSH_THEME="robbyrussell"
 #Custom git aliases
 alias restartzsh="source ~/.zshrc"
 alias restartohmyzsh="source ~/.oh-my-zsh"
-alias code="code ."
+alias code="cursor ."
 alias brewup='brew update; brew upgrade; brew prune; brew cleanup; brew doctor'
 alias gs="git status"
 alias gc="git clone"
