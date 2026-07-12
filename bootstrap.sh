@@ -57,7 +57,9 @@ link_file "$DOTFILES_DIR/p10k/p10k.zsh" "$HOME/.p10k.zsh"
 link_file "$DOTFILES_DIR/ghostty/config.ghostty" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
 link_file "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
 link_file "$DOTFILES_DIR/git/ignore" "$HOME/.config/git/ignore"
+link_file "$DOTFILES_DIR/git/allowed_signers" "$HOME/.config/git/allowed_signers"
 link_file "$DOTFILES_DIR/mise/config.toml" "$HOME/.config/mise/config.toml"
+link_file "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
 
 # ---------------------------------------------------------------------------
 # 4. Zsh plugins
@@ -97,7 +99,9 @@ cat <<'EOF'
 
 ==> Bootstrap complete. Pending manual steps:
 
-  1. Sign in to 1Password (app + enable the 'op' CLI).
+  1. Sign in to 1Password, then in Settings > Developer enable:
+     "Integrate with 1Password CLI" and "Use the SSH agent".
+     (The SSH key and git signing config expect the agent to be on.)
   2. Authenticate the GitHub CLI:  gh auth login
   3. Open each installed app at least once to grant system
      permissions (accessibility, notifications, etc.).
