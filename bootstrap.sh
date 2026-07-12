@@ -57,6 +57,7 @@ link_file "$DOTFILES_DIR/p10k/p10k.zsh" "$HOME/.p10k.zsh"
 link_file "$DOTFILES_DIR/ghostty/config.ghostty" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
 link_file "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
 link_file "$DOTFILES_DIR/git/ignore" "$HOME/.config/git/ignore"
+link_file "$DOTFILES_DIR/mise/config.toml" "$HOME/.config/mise/config.toml"
 
 # ---------------------------------------------------------------------------
 # 4. Zsh plugins
@@ -82,7 +83,15 @@ clone_plugin "https://github.com/zsh-users/zsh-autosuggestions"
 clone_plugin "https://github.com/zsh-users/zsh-syntax-highlighting"
 
 # ---------------------------------------------------------------------------
-# 5. Manual steps
+# 5. Toolchain (mise)
+# ---------------------------------------------------------------------------
+if command -v mise >/dev/null 2>&1; then
+  log "Installing mise-managed tools (node, ...)..."
+  mise install -y
+fi
+
+# ---------------------------------------------------------------------------
+# 6. Manual steps
 # ---------------------------------------------------------------------------
 cat <<'EOF'
 

@@ -6,6 +6,7 @@ brew "biome"
 brew "fzf"
 brew "gh"
 brew "git"
+brew "mise"
 brew "pnpm"
 brew "zoxide"
 
