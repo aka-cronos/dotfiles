@@ -1,3 +1,35 @@
 [user]
 	name = aka-cronos
 	email = akacronos@gmail.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMaT2dg4PE67WIrrkyi1wlof/X0bGvj/iLPTgNz5HKdb
+
+[commit]
+	gpgsign = true
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+	allowedSignersFile = ~/.config/git/allowed_signers
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[rebase]
+	autosquash = true
+
+[diff]
+	algorithm = histogram
+
+[rerere]
+	enabled = true
+
+[fetch]
+	prune = true
