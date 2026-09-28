@@ -23,6 +23,12 @@ The script is idempotent: it installs Homebrew if missing, runs `brew bundle` ag
 
 - Sign in to 1Password (app + `op` CLI).
 - `gh auth login` for the GitHub CLI.
+- Create `git/allowed_signers`. It stays in this folder (bootstrap symlinks `~/.config/git/allowed_signers` to it) and is gitignored, so commit emails are not published. One line: the address in `user.email`, then the public key from `user.signingkey` in `git/gitconfig`. Add older addresses on the same line, comma-separated, only if you still want `git` to verify commits signed with them.
+
+  ```
+  you@example.com ssh-ed25519 AAAA...
+  ```
+
 - Open each installed app once to grant system permissions.
 - Install skills on demand with `npx skills add aka-cronos/skills -g` (or others, per project).
 
@@ -35,7 +41,7 @@ dotfiles/
 ├── zsh/            # zshrc, zprofile and the ~/.config/zsh modules
 ├── p10k/           # Powerlevel10k theme (p10k.zsh)
 ├── ghostty/        # Ghostty terminal config
-└── git/            # gitconfig and global git ignore
+└── git/            # gitconfig, global git ignore; allowed_signers is local only
 ```
 
 ## How to edit the configuration

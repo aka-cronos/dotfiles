@@ -103,9 +103,14 @@ cat <<'EOF'
      "Integrate with 1Password CLI" and "Use the SSH agent".
      (The SSH key and git signing config expect the agent to be on.)
   2. Authenticate the GitHub CLI:  gh auth login
-  3. Open each installed app at least once to grant system
+  3. Create git/allowed_signers in this repo (gitignored; the symlink
+     above points ~/.config/git/allowed_signers at it). One line:
+     the user.email address, then the public key from user.signingkey
+     in git/gitconfig. Example:
+       you@example.com ssh-ed25519 AAAA...
+  4. Open each installed app at least once to grant system
      permissions (accessibility, notifications, etc.).
-  4. If you want your Claude Code / Cursor skills:
+  5. If you want your Claude Code / Cursor skills:
        npx skills add aka-cronos/skills -g
 
 EOF
