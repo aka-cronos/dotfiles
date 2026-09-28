@@ -1,6 +1,6 @@
 [user]
 	name = aka-cronos
-	email = akacronos@gmail.com
+	email = 3174598+aka-cronos@users.noreply.github.com
 	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMaT2dg4PE67WIrrkyi1wlof/X0bGvj/iLPTgNz5HKdb
 
 [commit]
@@ -33,3 +33,9 @@
 
 [fetch]
 	prune = true
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
