@@ -1,2 +1,3 @@
 zsh/config/plugins/
 .DS_Store
+git/allowed_signers
