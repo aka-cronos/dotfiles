@@ -2,6 +2,8 @@
 
 Reproducible personal configuration: shell (zsh + Powerlevel10k), Ghostty and git. Meant to take a freshly formatted Mac to fully operational with a clone + one script.
 
+The Linux desktop (Omarchy) is not covered by the script; its changes are documented in [`omarchy/`](omarchy/README.md).
+
 ## Requirements
 
 - `git`
@@ -51,6 +53,7 @@ dotfiles/
 ├── ghostty/        # Ghostty terminal config
 ├── git/            # gitconfig, global git ignore; allowed_signers is local only
 ├── ssh/            # ssh config; config.local (private hosts) is local only
+├── omarchy/        # customizations for the Omarchy desktop PC, applied by hand
 └── themes/         # saved app themes (Oscura for Omarchy and T3 Code), installed by hand
 ```
 

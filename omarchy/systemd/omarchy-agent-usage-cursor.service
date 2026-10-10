@@ -1,0 +1,7 @@
+[Unit]
+Description=Refresh the Cursor usage record for the Omarchy agents panel
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/omarchy-agent-usage-cursor --write
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin

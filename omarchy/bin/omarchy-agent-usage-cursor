@@ -1,0 +1,302 @@
+#!/usr/bin/python3
+# omarchy:summary=Print the Cursor usage record as JSON
+# omarchy:args=[--force] [--limits-only] [--write]
+# omarchy:hidden=true
+"""Collect Cursor usage into one display-ready JSON record.
+
+The plan meters come from Cursor's GetCurrentPeriodUsage RPC and the token
+history from the dashboard's usage-events endpoint, both read with the
+cursor-agent CLI login in ~/.config/cursor/auth.json. Neither endpoint is
+documented, so every failure leaves the previous record in place. The stats
+are account-wide (every machine signed in to the account), not machine-local.
+
+--write stores the record where the agents panel watches for it, for runs
+outside omarchy-agent-usage-update (the systemd user timer).
+"""
+
+import argparse
+import base64
+import json
+import os
+import subprocess
+import sys
+import tempfile
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+AGENT_ID = "cursor"
+AGENT_NAME = "Cursor"
+AUTH_HELP = "Run `cursor-agent login` to authenticate."
+
+LIMITS_URL = "https://api2.cursor.sh/aiserver.v1.DashboardService/GetCurrentPeriodUsage"
+EVENTS_URL = "https://cursor.com/api/dashboard/get-filtered-usage-events"
+HISTORY_DAYS = 30
+PAGE_SIZE = 1000
+MAX_PAGES = 50
+TIMEOUT_SECONDS = 15
+
+TIER_LABELS = {
+  "free": "Free",
+  "pro": "Pro",
+  "pro-plus": "Pro+",
+  "ultra": "Ultra",
+  "team": "Team",
+  "enterprise": "Enterprise",
+}
+
+
+class AuthError(Exception):
+  pass
+
+
+def auth_path():
+  config = os.environ.get("XDG_CONFIG_HOME") or str(Path.home() / ".config")
+  return Path(config) / "cursor" / "auth.json"
+
+
+def read_token():
+  try:
+    token = json.loads(auth_path().read_text()).get("accessToken")
+  except (OSError, ValueError):
+    raise AuthError()
+  if not isinstance(token, str) or not token:
+    raise AuthError()
+  return token
+
+
+def user_id(token):
+  try:
+    payload = token.split(".")[1]
+    payload += "=" * (-len(payload) % 4)
+    subject = json.loads(base64.urlsafe_b64decode(payload))["sub"]
+    return str(subject).split("|")[-1]
+  except Exception:
+    raise AuthError()
+
+
+def post(url, body, headers):
+  request = urllib.request.Request(
+    url,
+    data=json.dumps(body).encode(),
+    headers={"Content-Type": "application/json", **headers},
+  )
+  try:
+    with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
+      return json.load(response)
+  except urllib.error.HTTPError as error:
+    if error.code in (401, 403):
+      raise AuthError()
+    raise
+
+
+def fetch_limits(token):
+  return post(LIMITS_URL, {}, {
+    "Authorization": f"Bearer {token}",
+    "connect-protocol-version": "1",
+    "x-cursor-client-type": "cli",
+  })
+
+
+def fetch_events(token, since_ms, until_ms):
+  cookie = urllib.parse.quote(f"{user_id(token)}::{token}", safe="")
+  headers = {"Origin": "https://cursor.com", "Cookie": f"WorkosCursorSessionToken={cookie}"}
+  events = []
+  for page in range(1, MAX_PAGES + 1):
+    body = post(EVENTS_URL, {
+      "page": page,
+      "pageSize": PAGE_SIZE,
+      "startDate": str(since_ms),
+      "endDate": str(until_ms),
+    }, headers)
+    batch = body.get("usageEventsDisplay") or []
+    events.extend(batch)
+    if len(batch) < PAGE_SIZE:
+      break
+  return events
+
+
+def with_token(fetch):
+  """Run fetch(token); a rejected token gets one refresh through the CLI."""
+  try:
+    return fetch(read_token())
+  except AuthError:
+    # The CLI renews an expired access token as a side effect of any call.
+    try:
+      subprocess.run(["cursor-agent", "status"], capture_output=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+      raise AuthError()
+    return fetch(read_token())
+
+
+def iso_from_ms(value):
+  try:
+    return datetime.fromtimestamp(int(value) / 1000, timezone.utc).isoformat()
+  except (TypeError, ValueError):
+    return ""
+
+
+def limit_entries(usage):
+  plan = usage.get("planUsage") or {}
+  resets_at = iso_from_ms(usage.get("billingCycleEnd"))
+  entries = []
+  for title, key in (("Included", "totalPercentUsed"), ("Auto", "autoPercentUsed"), ("API", "apiPercentUsed")):
+    percent = plan.get(key)
+    if not isinstance(percent, (int, float)):
+      continue
+    entries.append({
+      "label": f"{title} (billing cycle)",
+      "title": title,
+      "percent": round(max(0.0, percent) / 100, 4),
+      "resetsAt": resets_at,
+    })
+  return entries
+
+
+def empty_bucket():
+  return {"inputTokens": 0, "outputTokens": 0, "cacheReadInputTokens": 0, "cacheCreationInputTokens": 0}
+
+
+def bucket_total(bucket):
+  return sum(bucket.values())
+
+
+def base_record():
+  return {
+    "schemaVersion": 1,
+    "id": AGENT_ID,
+    "name": AGENT_NAME,
+    "updatedAt": datetime.now(timezone.utc).isoformat(),
+    "ready": False,
+    "scope": "account",
+    "hasLocalStats": False,
+    "hasPromptStats": False,
+    "tierLabel": "",
+    "usageStatusText": "",
+    "authHelpText": AUTH_HELP,
+    "limits": [],
+    "todayPrompts": 0,
+    "todaySessions": 0,
+    "todayTotalTokens": 0,
+    "todayTokensByModel": {},
+    "recentDays": [],
+    "totalPrompts": 0,
+    "totalSessions": 0,
+    "activeDays": 0,
+    "activeDates": [],
+    "modelUsage": {},
+  }
+
+
+def add_stats(record, events):
+  today = datetime.now().strftime("%Y-%m-%d")
+  model_usage = {}
+  tokens_by_day = {}
+  today_by_model = {}
+  sessions = set()
+  today_sessions = set()
+  tier = ""
+
+  for event in events:
+    usage = event.get("tokenUsage")
+    if not isinstance(usage, dict):
+      continue
+    try:
+      day = datetime.fromtimestamp(int(event["timestamp"]) / 1000).strftime("%Y-%m-%d")
+    except (KeyError, TypeError, ValueError):
+      continue
+
+    model = str(event.get("model") or "unknown")
+    bucket = model_usage.setdefault(model, empty_bucket())
+    counts = {
+      "inputTokens": usage.get("inputTokens"),
+      "outputTokens": usage.get("outputTokens"),
+      "cacheReadInputTokens": usage.get("cacheReadTokens"),
+      "cacheCreationInputTokens": usage.get("cacheWriteTokens"),
+    }
+    total = 0
+    for key, value in counts.items():
+      if isinstance(value, (int, float)) and value > 0:
+        bucket[key] += int(value)
+        total += int(value)
+
+    tokens_by_day[day] = tokens_by_day.get(day, 0) + total
+    conversation = event.get("conversationId")
+    if conversation:
+      sessions.add(conversation)
+    if day == today:
+      today_by_model[model] = today_by_model.get(model, 0) + total
+      if conversation:
+        today_sessions.add(conversation)
+    # Events arrive newest first, so the first product seen is the current plan.
+    if not tier and event.get("subscriptionProductId"):
+      tier = str(event["subscriptionProductId"])
+
+  start = datetime.now().date() - timedelta(days=6)
+  record["recentDays"] = [
+    {"date": day, "messageCount": tokens_by_day.get(day, 0)}
+    for day in ((start + timedelta(days=offset)).strftime("%Y-%m-%d") for offset in range(7))
+  ]
+  active = sorted(day for day, total in tokens_by_day.items() if total > 0)
+  record["activeDates"] = active
+  record["activeDays"] = len(active)
+  record["modelUsage"] = {model: bucket for model, bucket in model_usage.items() if bucket_total(bucket) > 0}
+  record["todayTokensByModel"] = {model: total for model, total in today_by_model.items() if total > 0}
+  record["todayTotalTokens"] = sum(today_by_model.values())
+  record["todaySessions"] = len(today_sessions)
+  record["totalSessions"] = len(sessions)
+  record["hasLocalStats"] = True
+  if tier:
+    record["tierLabel"] = TIER_LABELS.get(tier, tier.replace("-", " ").title())
+
+
+def usage_dir():
+  state = os.environ.get("XDG_STATE_HOME") or str(Path.home() / ".local" / "state")
+  return Path(state) / "omarchy" / "agents" / "usage"
+
+
+def write_record(record):
+  directory = usage_dir()
+  directory.mkdir(parents=True, exist_ok=True)
+  # The panel watches this file, so a half-written record must never be visible.
+  with tempfile.NamedTemporaryFile("w", dir=directory, prefix=f".{AGENT_ID}.", delete=False) as tmp:
+    json.dump(record, tmp)
+    tmp.write("\n")
+  os.replace(tmp.name, directory / f"{AGENT_ID}.json")
+
+
+def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--force", action="store_true")
+  parser.add_argument("--limits-only", action="store_true")
+  parser.add_argument("--write", action="store_true")
+  args = parser.parse_args()
+
+  record = base_record()
+  now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+  since_ms = now_ms - HISTORY_DAYS * 86_400_000
+
+  try:
+    record["limits"] = limit_entries(with_token(fetch_limits))
+    add_stats(record, with_token(lambda token: fetch_events(token, since_ms, now_ms)))
+    record["ready"] = True
+    record["authHelpText"] = ""
+  except AuthError:
+    record["usageStatusText"] = "Cursor is signed out"
+  except Exception as error:
+    # A network blip must not blank the panel: keep whatever record is there.
+    print(f"omarchy-agent-usage-cursor: {error}", file=sys.stderr)
+    return 1
+
+  if args.write:
+    write_record(record)
+  else:
+    json.dump(record, sys.stdout)
+    print()
+  return 0
+
+
+if __name__ == "__main__":
+  sys.exit(main())
