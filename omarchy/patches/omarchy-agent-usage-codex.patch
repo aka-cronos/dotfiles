@@ -1,0 +1,15 @@
+--- a/omarchy-agent-usage-codex
++++ b/omarchy-agent-usage-codex
+@@ -544,7 +544,11 @@
+     rpc_request(proc, 1, "initialize", {"clientInfo": {"name": "omarchy-agent-usage", "version": "1"}}, timeout=8)
+     proc.stdin.write(json.dumps({"method": "initialized", "params": {}}) + "\n")
+     proc.stdin.flush()
+-    account_msg = rpc_request(proc, 2, "account/read", timeout=4)
++    # Codex sometimes never answers account/read; the limits carry the plan too.
++    try:
++      account_msg = rpc_request(proc, 2, "account/read", timeout=2)
++    except TimeoutError:
++      account_msg = {}
+     limits_msg = rpc_request(proc, 3, "account/rateLimits/read", timeout=4)
+ 
+     account = (account_msg.get("result") or {}).get("account") or {}
