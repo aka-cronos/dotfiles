@@ -60,6 +60,7 @@ link_file "$DOTFILES_DIR/git/ignore" "$HOME/.config/git/ignore"
 link_file "$DOTFILES_DIR/git/allowed_signers" "$HOME/.config/git/allowed_signers"
 link_file "$DOTFILES_DIR/mise/config.toml" "$HOME/.config/mise/config.toml"
 link_file "$DOTFILES_DIR/ssh/config" "$HOME/.ssh/config"
+link_file "$DOTFILES_DIR/ssh/config.local" "$HOME/.ssh/config.local"
 
 # ---------------------------------------------------------------------------
 # 4. Zsh plugins
@@ -108,9 +109,12 @@ cat <<'EOF'
      the user.email address, then the public key from user.signingkey
      in git/gitconfig. Example:
        you@example.com ssh-ed25519 AAAA...
-  4. Open each installed app at least once to grant system
+  4. Optional: create ssh/config.local in this repo (gitignored; the
+     symlink above points ~/.ssh/config.local at it) with the Host
+     blocks for private machines. ssh/config already includes it.
+  5. Open each installed app at least once to grant system
      permissions (accessibility, notifications, etc.).
-  5. If you want your Claude Code / Cursor skills:
+  6. If you want your Claude Code / Cursor skills:
        npx skills add aka-cronos/skills -g
 
 EOF

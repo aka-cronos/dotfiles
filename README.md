@@ -29,6 +29,14 @@ The script is idempotent: it installs Homebrew if missing, runs `brew bundle` ag
   you@example.com ssh-ed25519 AAAA...
   ```
 
+- Optional: create `ssh/config.local` for private machines. Like `allowed_signers`, it stays in this folder (bootstrap symlinks `~/.ssh/config.local` to it) and is gitignored, so host names and private addresses are not published. `ssh/config` loads it with `Include`, and a missing file is ignored. Use plain `Host` blocks:
+
+  ```
+  Host my-pc
+    HostName my-pc.local
+    User me
+  ```
+
 - Open each installed app once to grant system permissions.
 - Install skills on demand with `npx skills add aka-cronos/skills -g` (or others, per project).
 
@@ -42,6 +50,7 @@ dotfiles/
 ├── p10k/           # Powerlevel10k theme (p10k.zsh)
 ├── ghostty/        # Ghostty terminal config
 ├── git/            # gitconfig, global git ignore; allowed_signers is local only
+├── ssh/            # ssh config; config.local (private hosts) is local only
 └── themes/         # saved app themes (Oscura for Omarchy and T3 Code), installed by hand
 ```
 
