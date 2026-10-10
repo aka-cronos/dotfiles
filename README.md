@@ -41,7 +41,8 @@ dotfiles/
 ├── zsh/            # zshrc, zprofile and the ~/.config/zsh modules
 ├── p10k/           # Powerlevel10k theme (p10k.zsh)
 ├── ghostty/        # Ghostty terminal config
-└── git/            # gitconfig, global git ignore; allowed_signers is local only
+├── git/            # gitconfig, global git ignore; allowed_signers is local only
+└── themes/         # saved app themes (Oscura for Omarchy and T3 Code), installed by hand
 ```
 
 ## How to edit the configuration
