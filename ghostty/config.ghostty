@@ -9,7 +9,7 @@ window-padding-balance = true
 window-inherit-working-directory = true
 window-padding-x = 10
 window-padding-y = 10
-window-show-tab-bar = default
+window-show-tab-bar = auto
 
 # Oscura Midnight — Ghostty Theme
 # Based on the Oscura Midnight VS Code theme
