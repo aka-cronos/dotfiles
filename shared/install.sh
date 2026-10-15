@@ -42,7 +42,14 @@ fi
 # update themselves and T3 Code can update them from its providers screen.
 install_agent_cli() {
   local name="$1" url="$2" shell="$3"
-  if [[ -x "$HOME/.local/bin/$name" ]]; then
+  local bin="$HOME/.local/bin/$name"
+  # Omarchy ships launchers here that run the CLI through mise (and add it
+  # back to the global mise config): replace them.
+  if [[ -f "$bin" && ! -L "$bin" ]] && grep -q 'mise x' "$bin"; then
+    log "Replacing Omarchy's mise launcher for $name"
+    rm "$bin"
+  fi
+  if [[ -x "$bin" ]]; then
     log "$name already installed"
     return
   fi
