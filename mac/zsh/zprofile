@@ -3,3 +3,10 @@ if [[ -x /opt/homebrew/bin/brew ]]; then
 elif [[ -x /usr/local/bin/brew ]]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
+
+# Agent CLIs (claude, codex, cursor-agent) live in ~/.local/bin; login shells
+# need it too, since T3 Code resolves providers from one. The markers stop the
+# Codex installer from appending its own copy.
+# >>> Codex installer >>>
+export PATH="$HOME/.local/bin:$PATH"
+# <<< Codex installer <<<

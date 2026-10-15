@@ -53,7 +53,7 @@ yay -S helium-browser-bin openlogi-bin figma-agent-linux-bin
 sudo pacman -Rns obs-studio moonlight-qt
 ```
 
-`claude`, `codex`, `cursor-agent`, `gh` and Node come from mise (`install.sh`). Sign in afterwards: `cursor-agent login`, `codex login`, `claude`, `gh auth login`, Grok Bot, and each site inside Helium.
+`gh` and Node come from mise; `claude`, `codex` and `cursor-agent` from their official installers into `~/.local/bin` (both via `install.sh`). Sign in afterwards: `cursor-agent login`, `codex login`, `claude`, `gh auth login`, Grok Bot, and each site inside Helium.
 
 ## 4. Helium as the default browser
 
