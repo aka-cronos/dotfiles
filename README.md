@@ -1,76 +1,65 @@
 # dotfiles
 
-Reproducible personal configuration: shell (zsh + Powerlevel10k), Ghostty and git. Meant to take a freshly formatted Mac to fully operational with a clone + one script.
-
-The Linux desktop (Omarchy) is not covered by the script; its changes are documented in [`omarchy/`](omarchy/README.md).
-
-## Requirements
-
-- `git`
-- Xcode Command Line Tools (`xcode-select --install`)
-
-Everything else (Homebrew, packages, apps) is installed by `bootstrap.sh`.
-
-## Setup on a new machine
-
-```sh
-git clone https://github.com/aka-cronos/dotfiles.git ~/Documents/Code/dotfiles
-cd ~/Documents/Code/dotfiles
-./bootstrap.sh
-```
-
-The script is idempotent: it installs Homebrew if missing, runs `brew bundle` against the `Brewfile`, creates the config symlinks (backing up any real file it finds in the way) and clones the zsh plugins.
-
-### Manual steps after bootstrap
-
-- Sign in to 1Password (app + `op` CLI).
-- `gh auth login` for the GitHub CLI.
-- Create `git/allowed_signers`. It stays in this folder (bootstrap symlinks `~/.config/git/allowed_signers` to it) and is gitignored, so commit emails are not published. One line: the address in `user.email`, then the public key from `user.signingkey` in `git/gitconfig`. Add older addresses on the same line, comma-separated, only if you still want `git` to verify commits signed with them.
-
-  ```
-  you@example.com ssh-ed25519 AAAA...
-  ```
-
-- Optional: create `ssh/config.local` for private machines. Like `allowed_signers`, it stays in this folder (bootstrap symlinks `~/.ssh/config.local` to it) and is gitignored, so host names and private addresses are not published. `ssh/config` loads it with `Include`, and a missing file is ignored. Use plain `Host` blocks:
-
-  ```
-  Host my-pc
-    HostName my-pc.local
-    User me
-  ```
-
-- Open each installed app once to grant system permissions.
-
-## Repo structure
+Reproducible personal configuration for two machines: a Mac (zsh, Homebrew) and a desktop PC running [Omarchy](https://omarchy.org) (bash, pacman). What both use lives in `shared/`; each machine has its own folder and setup script.
 
 ```
 dotfiles/
-├── bootstrap.sh    # install + symlinks, idempotent
-├── Brewfile        # CLIs, casks and fonts installed via Homebrew
-├── zsh/            # zshrc, zprofile and the ~/.config/zsh modules
-├── p10k/           # Powerlevel10k theme (p10k.zsh)
-├── ghostty/        # Ghostty terminal config
-├── git/            # gitconfig, global git ignore; allowed_signers is local only
-├── ssh/            # ssh config; config.local (private hosts) is local only
-├── agents/         # agent rules, Claude Code settings, global skills; install.sh (Mac and Linux)
-├── omarchy/        # customizations for the Omarchy desktop PC, applied by hand
-└── themes/         # saved app themes (Oscura for Omarchy and T3 Code), installed by hand
+├── shared/              # used by both machines; shared/install.sh links it
+│   ├── agents/          # agent rules, Claude Code settings, global skills, envsync
+│   ├── git/             # gitconfig, global ignore; allowed_signers is local only
+│   ├── mise/            # toolchain: node, pnpm, gh, claude, codex, cursor-agent
+│   └── shell/           # aliases.sh, sourced by zsh (Mac) and bash (PC)
+├── mac/                 # bootstrap.sh, Brewfile, zsh, p10k, ghostty, ssh, git signing
+├── omarchy/             # install.sh, README (sudo steps), bash additions, prompt,
+│                        # hypr, agents-panel collector, Codex patch, git signing
+└── themes/              # saved app themes (Oscura for Omarchy and T3 Code)
 ```
 
-## How to edit the configuration
+## Setup
 
-The system symlinks back to this repo (links are created by `bootstrap.sh`), so to change any config **edit the file in here**, not the symlink target — they are the same file, but the repo is the source of truth. After editing, commit the change as usual.
+### Mac
+
+Requirements: `git` and the Xcode Command Line Tools (`xcode-select --install`).
+
+```sh
+git clone https://github.com/aka-cronos/dotfiles.git ~/Documents/Code/dotfiles
+~/Documents/Code/dotfiles/mac/bootstrap.sh
+```
+
+It installs Homebrew and the `Brewfile` (apps, fonts, base CLIs), links the Mac config, clones the zsh plugins, then runs `shared/install.sh mac`. It ends with the manual steps (1Password, `gh auth login`, `allowed_signers`, `ssh/config.local`).
+
+### PC (Omarchy)
+
+```sh
+git clone https://github.com/aka-cronos/dotfiles.git ~/Code/dotfiles
+~/Code/dotfiles/omarchy/install.sh
+```
+
+It runs every step that does not need sudo, including `shared/install.sh omarchy`. Packages, sudo steps and sign-ins are in [`omarchy/README.md`](omarchy/README.md).
+
+Both scripts are idempotent and back up any real file they replace into `~/.dotfiles-backup-<timestamp>-<pid>/`, keeping its path under `$HOME`.
+
+## Shared config
+
+`shared/install.sh <mac|omarchy>` links:
+
+- **Git**: `shared/git/gitconfig` as `~/.config/git/config` (identity, defaults, `gh` credentials). It includes `~/.config/git/machine`, linked to `<machine>/git/machine`, which holds the signing key: 1Password on the Mac, a key on disk on the PC so agents can sign unattended.
+- **mise**: `shared/mise/config.toml`, then `mise install`. `mise up` updates everything. Projects with `.nvmrc` or `.node-version` pick their own Node.
+- **Shell**: `shared/shell/aliases.sh` (git aliases, `code` for Cursor, open new shells in the code folder). Keep it valid in both zsh and bash.
+- **Agents**: `shared/agents/install.sh`, see below.
 
 ## Agents
 
-`agents/install.sh` (run by `bootstrap.sh`, or by hand on the PC) sets up the coding agents the same way on both machines:
+- `shared/agents/AGENTS.md` is the global rule file, linked as `~/.agents/AGENTS.md`. Each agent's global file links there: `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`. Cursor has no global rule file, so it only follows each repo's `AGENTS.md`. Repo rules override it.
+- `shared/agents/claude/` holds Claude Code's `settings.json` and status line script.
+- `shared/agents/skills.txt` lists the global skills; the script installs any that are missing into `~/.agents/skills`, which Claude Code, Codex and Cursor all read. `skills-catalog.md` records every skill removed in the 2026-10-14 cleanup and how to reinstall it.
+- `shared/agents/bin/envsync` renders a repo's env files from 1Password templates (`~/.local/bin/envsync`).
 
-- `agents/AGENTS.md` is the global rule file, linked as `~/.agents/AGENTS.md`. Each agent's global file links there: `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`. Cursor has no global rule file, so it only follows each repo's `AGENTS.md`. Repo rules override it.
-- `agents/claude/` holds Claude Code's `settings.json` and status line script.
-- `agents/skills.txt` lists the global skills; the script installs any that are missing into `~/.agents/skills`, which Claude Code, Codex and Cursor all read. `agents/skills-catalog.md` records every skill removed in the 2026-10-14 cleanup and how to reinstall it.
-- `agents/bin/envsync` renders a repo's env files from 1Password templates (`~/.local/bin/envsync`).
+Claude Code may rewrite `~/.claude/settings.json` (for example after `/config`). If `ls -la ~/.claude/settings.json` no longer shows a symlink, copy the changes you want into `shared/agents/claude/settings.json` and rerun the script.
 
-Claude Code may rewrite `~/.claude/settings.json` (for example after `/config`). If `ls -la ~/.claude/settings.json` no longer shows a symlink, copy the changes you want into `agents/claude/settings.json` and rerun the script.
+## Editing
+
+The machines symlink back to this repo, so edit the files in here; the repo is the source of truth. Commit the change as usual and pull on the other machine. Rerun the setup script after adding files or links, and on the PC after changing `omarchy/systemd/` (those units are copied, not linked).
 
 ## What is left out (on purpose)
 

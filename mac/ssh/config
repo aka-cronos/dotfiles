@@ -1,4 +1,4 @@
-# Private hosts live in ssh/config.local (gitignored); see the README.
+# Private hosts live in config.local next to this file (gitignored); see mac/bootstrap.sh.
 Include config.local
 
 Host *

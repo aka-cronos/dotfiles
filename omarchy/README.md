@@ -1,16 +1,30 @@
 # omarchy
 
-What I change on top of a stock [Omarchy](https://omarchy.org) install on the desktop PC, so a reinstall can be brought back by hand. Nothing here is run by `bootstrap.sh` (that script is for the Mac): follow the steps below on the PC, from a clone of this repo.
+What I change on top of a stock [Omarchy](https://omarchy.org) install on the desktop PC. `install.sh` applies everything that runs as the user; the rest (packages, **sudo** steps, sign-ins) is below, in order.
 
-Written against Omarchy 4.0.4. Steps marked **sudo** need a password; everything else runs as the user.
+Written against Omarchy 4.0.4.
 
 ```
 omarchy/
+├── install.sh                       # user-level setup, idempotent
+├── shell/bashrc.sh                  # sourced from ~/.bashrc: shared aliases, drops `c`
+├── shell/starship.toml              # prompt styled after the Mac's Powerlevel10k
+├── git/machine                      # signs commits with ~/.ssh/git_signing_ed25519
+├── hypr/                            # looknfeel.lua (1px borders, no transparency), monitors.lua (1.5 scale)
 ├── bin/omarchy-agent-usage-cursor   # Cursor collector for the bar's agents panel
 ├── systemd/                         # user timer that refreshes it every 15 minutes
-├── hypr/                            # looknfeel.lua (1px borders), monitors.lua (1.6 scale)
 └── patches/                         # fix for Omarchy's Codex collector
 ```
+
+## What `install.sh` does
+
+Run it from the clone (`~/Code/dotfiles/omarchy/install.sh`) after the packages in step 3 are in.
+
+- Creates `~/.ssh/git_signing_ed25519` if missing and prints the public key. Add it on GitHub (Settings → SSH and GPG keys → New SSH key, type **Signing Key**) so commits from the PC show "Verified".
+- Runs `shared/install.sh omarchy`: git config, mise tools, shared aliases and the coding agents (rules, Claude Code settings, global skills).
+- Links `shell/bashrc.sh` and `shell/starship.toml`, and adds one line to `~/.bashrc` that sources the former. Omarchy's own bash config stays untouched.
+- Links the two Hyprland files and reloads Hyprland.
+- Installs and enables the Cursor collector for the agents panel (section 7).
 
 ## 1. Theme
 
@@ -24,13 +38,10 @@ t3-nightly theme set themes/oscura/t3code/oscura-midnight-dark-sidebar.json
 
 ## 2. Hyprland
 
-```sh
-cp omarchy/hypr/looknfeel.lua omarchy/hypr/monitors.lua ~/.config/hypr/
-hyprctl reload
-```
+Done by `install.sh`.
 
-- `looknfeel.lua`: Omarchy's default file plus `border_size = 1`. The border colors come from the theme.
-- `monitors.lua`: 1.6 scale for the 32" 4K monitor. Skip it on other hardware.
+- `looknfeel.lua`: Omarchy's default file plus `border_size = 1` and no window transparency. The border colors come from the theme.
+- `monitors.lua`: 1.5 scale for the 32" 4K monitor on `DP-1`. Change it on other hardware.
 
 ## 3. Packages
 
@@ -42,7 +53,7 @@ yay -S helium-browser-bin openlogi-bin figma-agent-linux-bin
 sudo pacman -Rns obs-studio moonlight-qt
 ```
 
-Sign in afterwards: `cursor-agent login`, `codex login`, `claude`, `gh auth login`, Grok Bot, and each site inside Helium.
+`claude`, `codex`, `cursor-agent`, `gh` and Node come from mise (`install.sh`). Sign in afterwards: `cursor-agent login`, `codex login`, `claude`, `gh auth login`, Grok Bot, and each site inside Helium.
 
 ## 4. Helium as the default browser
 
@@ -111,14 +122,7 @@ bluetoothctl --agent KeyboardDisplay
 
 ## 7. Cursor in the bar's agents panel
 
-Omarchy ships collectors for Claude Code, Codex and Fireworks only. The panel draws any record that lands in `~/.local/state/omarchy/agents/usage/`, so this adds one for Cursor:
-
-```sh
-install -m 755 omarchy/bin/omarchy-agent-usage-cursor ~/.local/bin/
-cp omarchy/systemd/omarchy-agent-usage-cursor.* ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now omarchy-agent-usage-cursor.timer
-```
+Omarchy ships collectors for Claude Code, Codex and Fireworks only. The panel draws any record that lands in `~/.local/state/omarchy/agents/usage/`, so `install.sh` adds one for Cursor and a user timer that runs it.
 
 - It reads the `cursor-agent` login in `~/.config/cursor/auth.json` and calls two undocumented Cursor endpoints (the same ones T3 Code uses). When they fail it keeps the previous record.
 - The numbers are account-wide and cover the last 30 days.
@@ -137,14 +141,6 @@ sudo patch /usr/bin/omarchy-agent-usage-codex omarchy/patches/omarchy-agent-usag
 ```
 
 An Omarchy update overwrites that file. Reapply the patch if the tab starts flickering again; drop it once the collector or Codex is fixed upstream.
-
-## 9. Coding agents
-
-Same rules, Claude Code settings and global skills as the Mac. From the repo root (needs Node from mise for the skills):
-
-```sh
-agents/install.sh
-```
 
 ## Not configured
 

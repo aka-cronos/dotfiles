@@ -1,6 +1,6 @@
 # themes
 
-Saved copies of the themes I use, one folder per theme family and one subfolder per app. Nothing here is symlinked by `bootstrap.sh`: each app is installed by hand with the steps below.
+Saved copies of the themes I use, one folder per theme family and one subfolder per app. Nothing here is linked by the setup scripts: each app is installed by hand with the steps below.
 
 ## Oscura
 
@@ -19,7 +19,7 @@ cp -r themes/oscura/omarchy/oscura-midnight ~/.config/omarchy/themes/
 omarchy-theme-set "Oscura Midnight"
 ```
 
-- `colors.toml` is the whole palette; Omarchy generates every app config from it. The terminal colors match the Ghostty block in `ghostty/config.ghostty`, the accent and the orange come from the T3 Code theme.
+- `colors.toml` is the whole palette; Omarchy generates every app config from it. The terminal colors match the Ghostty block in `mac/ghostty/config.ghostty`, the accent and the orange come from the T3 Code theme.
 - `hyprland_active_border` / `hyprland_inactive_border` make the window border white when focused and 20% white otherwise. The 1px width is not part of the theme: it is `border_size = 1` in `~/.config/hypr/looknfeel.lua`.
 - `vscode.json` points VS Code and Cursor at the `Fey.oscura` extension.
 - Only the solid background is stored here. On the PC the theme also uses two photos that ship with Omarchy, copied from its Matte Black theme:
@@ -41,4 +41,4 @@ t3 theme set themes/oscura/t3code/oscura-midnight-dark-sidebar.json
 
 ### Ghostty and cmux
 
-There is no separate file: the Oscura Midnight colors live in `ghostty/config.ghostty`, and cmux reads that same Ghostty config.
+There is no separate file: the Oscura Midnight colors live in `mac/ghostty/config.ghostty`, and cmux reads that same Ghostty config.
