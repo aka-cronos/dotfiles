@@ -1,0 +1,67 @@
+# Shared by both machines; linked as ~/.config/git/config.
+# The signing key and signing program differ per machine: they live in
+# <machine>/git/machine, linked as ~/.config/git/machine (included last).
+
+[user]
+	name = aka-cronos
+	email = 3174598+aka-cronos@users.noreply.github.com
+
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+
+[commit]
+	gpgsign = true
+	verbose = true
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[rebase]
+	autosquash = true
+
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
+
+[column]
+	ui = auto
+
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = -version:refname
+
+[rerere]
+	enabled = true
+	autoupdate = true
+
+[fetch]
+	prune = true
+
+# gh comes from mise on both machines.
+[credential "https://github.com"]
+	helper =
+	helper = !\"$HOME/.local/share/mise/shims/gh\" auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !\"$HOME/.local/share/mise/shims/gh\" auth git-credential
+
+[include]
+	path = ~/.config/git/machine

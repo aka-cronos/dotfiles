@@ -1,6 +1,6 @@
 # themes
 
-Saved copies of the themes I use, one folder per theme family and one subfolder per app. Nothing here is symlinked by `bootstrap.sh`: each app is installed by hand with the steps below.
+Saved copies of the themes I use, one folder per theme family and one subfolder per app. Nothing here is linked by the setup scripts: each app is installed by hand with the steps below.
 
 ## Oscura
 

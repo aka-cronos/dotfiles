@@ -1,4 +1,4 @@
-zsh/config/plugins/
 .DS_Store
-git/allowed_signers
-ssh/config.local
+mac/zsh/config/plugins/
+mac/ssh/config.local
+shared/git/allowed_signers

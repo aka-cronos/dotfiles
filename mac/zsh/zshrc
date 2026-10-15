@@ -14,9 +14,7 @@ export PATH
 
 for file in \
   ~/.config/zsh/10-options.zsh \
-  ~/.config/zsh/20-navigation.zsh \
   ~/.config/zsh/30-aliases.zsh \
-  ~/.config/zsh/40-functions.zsh \
   ~/.config/zsh/50-completion.zsh \
   ~/.config/zsh/60-prompt.zsh \
   ~/.config/zsh/70-tools.zsh \
