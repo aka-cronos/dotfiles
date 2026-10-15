@@ -63,8 +63,8 @@ fi
 
 cat <<'EOF'
 
-==> Agent config installed. Manual step (once per Cursor account, syncs to
-    every machine): paste agents/AGENTS.md into Cursor > Settings > Rules >
-    User Rules.
+==> Agent config installed. In Cursor > Settings > Agents, keep "Include
+    Third-Party Plugins, Skills, and Other Configs" on: it imports
+    ~/.claude/CLAUDE.md and the global skills.
 
 EOF

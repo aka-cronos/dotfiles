@@ -120,7 +120,7 @@ cat <<'EOF'
      blocks for private machines. ssh/config already includes it.
   5. Open each installed app at least once to grant system
      permissions (accessibility, notifications, etc.).
-  6. Paste agents/AGENTS.md into Cursor > Settings > Rules > User Rules
-     (once per Cursor account; it syncs to every machine).
+  6. In Cursor > Settings > Agents, keep "Include Third-Party Plugins,
+     Skills, and Other Configs" on (it imports the global agent rules).
 
 EOF
