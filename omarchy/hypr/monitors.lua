@@ -2,10 +2,11 @@
 -- List current monitors and supported resolutions with: hyprctl monitors all
 
 local omarchy_gdk_scale = 2
-local omarchy_monitor_scale = 1.6
+local omarchy_monitor_scale = 1.5
 
 hl.env("GDK_SCALE", tostring(omarchy_gdk_scale))
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = omarchy_monitor_scale })
+hl.monitor({ output = "DP-1", mode = "3840x2160@143.98", position = "0x0", scale = omarchy_monitor_scale })
 
 -- Configure a specific monitor.
 -- hl.monitor({ output = "DP-2", mode = "2560x1440@144", position = "0x0", scale = 1 })

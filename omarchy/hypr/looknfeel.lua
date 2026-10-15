@@ -55,3 +55,6 @@ hl.config({
     border_size = 1,
   },
 })
+
+-- No transparency on any window (overrides Omarchy's default-opacity rule).
+o.window(".*", { opacity = "1 1" })
