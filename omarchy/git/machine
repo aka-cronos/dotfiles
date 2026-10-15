@@ -1,0 +1,6 @@
+# PC: sign with a key kept on disk, so agents can commit while nobody is at
+# the desk. omarchy/install.sh creates it; add the .pub to GitHub as a
+# Signing Key.
+
+[user]
+	signingkey = ~/.ssh/git_signing_ed25519.pub
