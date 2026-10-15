@@ -54,11 +54,6 @@ cask "claude"
 #   (deprecated, disabled on 2026-10-30) — a different product.
 # Hubble (com.benholmes.hubblemd.desktop) — no cask in homebrew-cask.
 # mymind (com.mymind.mymind-mac) — no cask; installed via the App Store.
-# Paper (com.todesktop.2601167vjw8xe) — no cask. Homebrew's "paper" cask is
-#   "pap.er" (wallpapers), an unrelated product.
-# Pencil (dev.pencil.desktop) — no cask. Homebrew's "pencil" cask is Evolus
-#   Pencil (prototyping GUI), a different product and deprecated anyway
-#   (blocked by Gatekeeper, disabled on 2026-09-01).
 # Ports (com.atapper.Ports) — no cask in homebrew-cask.
 
 # vscode (not applicable: Cursor is not VS Code; extensions sync with the account)

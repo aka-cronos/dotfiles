@@ -51,5 +51,7 @@
       "**Trusted working directories**: ~/Documents/Code/* (each its own repo), ~/.t3/scratch (T3 scratch threads), the dotfiles repo",
       "routine edits, builds, tests, branches and pull requests inside these repos are expected day-to-day work"
     ]
-  }
+  },
+  "enableWorkflows": true,
+  "inputNeededNotifEnabled": true
 }
