@@ -40,7 +40,6 @@ The script is idempotent: it installs Homebrew if missing, runs `brew bundle` ag
   ```
 
 - Open each installed app once to grant system permissions.
-- In Cursor > Settings > Agents, keep "Include Third-Party Plugins, Skills, and Other Configs" on: that is how Cursor picks up `~/.claude/CLAUDE.md` and the global skills.
 
 ## Repo structure
 
@@ -66,7 +65,7 @@ The system symlinks back to this repo (links are created by `bootstrap.sh`), so 
 
 `agents/install.sh` (run by `bootstrap.sh`, or by hand on the PC) sets up the coding agents the same way on both machines:
 
-- `agents/AGENTS.md` is the global rule file for every agent: linked as `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`; Cursor imports the Claude file through its third-party configs setting. Repo rules override it.
+- `agents/AGENTS.md` is the global rule file, linked as `~/.agents/AGENTS.md`. Each agent's global file links there: `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`. Cursor has no global rule file, so it only follows each repo's `AGENTS.md`. Repo rules override it.
 - `agents/claude/` holds Claude Code's `settings.json` and status line script.
 - `agents/skills.txt` lists the global skills; the script installs any that are missing into `~/.agents/skills`, which Claude Code, Codex and Cursor all read. `agents/skills-catalog.md` records every skill removed in the 2026-10-14 cleanup and how to reinstall it.
 - `agents/bin/envsync` renders a repo's env files from 1Password templates (`~/.local/bin/envsync`).

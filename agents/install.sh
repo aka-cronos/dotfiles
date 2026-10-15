@@ -26,10 +26,11 @@ link_file() {
 }
 
 # ---------------------------------------------------------------------------
-# 1. Global rules: one AGENTS.md for every agent
+# 1. Global rules: ~/.agents/AGENTS.md, shared by every agent's global file
 # ---------------------------------------------------------------------------
-link_file "$AGENTS_DIR/AGENTS.md" "$HOME/.claude/CLAUDE.md"
-link_file "$AGENTS_DIR/AGENTS.md" "$HOME/.codex/AGENTS.md"
+link_file "$AGENTS_DIR/AGENTS.md" "$HOME/.agents/AGENTS.md"
+link_file "$HOME/.agents/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+link_file "$HOME/.agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
 # ---------------------------------------------------------------------------
 # 2. Claude Code settings and status line
@@ -63,8 +64,7 @@ fi
 
 cat <<'EOF'
 
-==> Agent config installed. In Cursor > Settings > Agents, keep "Include
-    Third-Party Plugins, Skills, and Other Configs" on: it imports
-    ~/.claude/CLAUDE.md and the global skills.
+==> Agent config installed. Cursor has no global rule file: it follows
+    each repo's AGENTS.md and reads the skills from ~/.agents/skills.
 
 EOF
