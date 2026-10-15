@@ -40,7 +40,6 @@ The script is idempotent: it installs Homebrew if missing, runs `brew bundle` ag
   ```
 
 - Open each installed app once to grant system permissions.
-- Install skills on demand with `npx skills add aka-cronos/skills -g` (or others, per project).
 
 ## Repo structure
 
@@ -53,6 +52,7 @@ dotfiles/
 ├── ghostty/        # Ghostty terminal config
 ├── git/            # gitconfig, global git ignore; allowed_signers is local only
 ├── ssh/            # ssh config; config.local (private hosts) is local only
+├── agents/         # agent rules, Claude Code settings, global skills; install.sh (Mac and Linux)
 ├── omarchy/        # customizations for the Omarchy desktop PC, applied by hand
 └── themes/         # saved app themes (Oscura for Omarchy and T3 Code), installed by hand
 ```
@@ -61,6 +61,17 @@ dotfiles/
 
 The system symlinks back to this repo (links are created by `bootstrap.sh`), so to change any config **edit the file in here**, not the symlink target — they are the same file, but the repo is the source of truth. After editing, commit the change as usual.
 
+## Agents
+
+`agents/install.sh` (run by `bootstrap.sh`, or by hand on the PC) sets up the coding agents the same way on both machines:
+
+- `agents/AGENTS.md` is the global rule file, linked as `~/.agents/AGENTS.md`. Each agent's global file links there: `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`. Cursor has no global rule file, so it only follows each repo's `AGENTS.md`. Repo rules override it.
+- `agents/claude/` holds Claude Code's `settings.json` and status line script.
+- `agents/skills.txt` lists the global skills; the script installs any that are missing into `~/.agents/skills`, which Claude Code, Codex and Cursor all read. `agents/skills-catalog.md` records every skill removed in the 2026-10-14 cleanup and how to reinstall it.
+- `agents/bin/envsync` renders a repo's env files from 1Password templates (`~/.local/bin/envsync`).
+
+Claude Code may rewrite `~/.claude/settings.json` (for example after `/config`). If `ls -la ~/.claude/settings.json` no longer shows a symlink, copy the changes you want into `agents/claude/settings.json` and rerun the script.
+
 ## What is left out (on purpose)
 
-Claude Code, Cursor and `gh` configuration does not live in this repo yet — they are candidates to be added later, but for now they are managed separately.
+`gh` configuration and Codex's `config.toml` (machine-specific project trust and plugins) are managed separately.

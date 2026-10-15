@@ -1,0 +1,55 @@
+{
+  "permissions": {
+    "allow": [],
+    "defaultMode": "auto"
+  },
+  "model": "opus",
+  "worktree": {
+    "baseRef": "fresh"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "sh \"$HOME/.claude/statusline-command.sh\""
+  },
+  "enabledPlugins": {
+    "figma@claude-plugins-official": false,
+    "notion@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+  "syntaxHighlightingDisabled": false,
+  "effortLevel": "high",
+  "tui": "fullscreen",
+  "theme": "dark-ansi",
+  "editorMode": "normal",
+  "verbose": false,
+  "preferredNotifChannel": "auto",
+  "autoCompactEnabled": true,
+  "autoScrollEnabled": false,
+  "fileCheckpointingEnabled": false,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: personal GitHub account aka-cronos (no org)",
+      "**Source control**: github.com/aka-cronos/* repos and their remotes. Private repos are trusted for confidential material. Public repos (aka-cronos/dotfiles, aka-cronos/skills, aka-cronos/uzzy, aka-cronos/color-oklch, aka-cronos/color.akacronos.com) are public: never put confidential material in them or copy content from private repos into them",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: 1Password; env files are rendered by `envsync` from `*.tpl` templates (vault `dev`). Never read the service-account token",
+      "**Default / protected branches**: default branch is main; never commit or push to main directly — changes land through pull requests",
+      "**Sensitive data locations & audiences**: .env, .env.local, .env.*.local and other gitignored env files — treat as credentials, share only with audiences cleared at the [named+specifics] bar",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries prod or production as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries prod or production as a whole word or name segment",
+      "**Trusted machines**: this MacBook and cronos-pc (Omarchy Linux, reached with `ssh cronos-pc`)",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development and design engineering across personal projects in ~/Documents/Code (ninero, uzzy, cns-os, facio, …), orchestrated from T3 Code",
+      "**Trusted working directories**: ~/Documents/Code/* (each its own repo), ~/.t3/scratch (T3 scratch threads), the dotfiles repo",
+      "routine edits, builds, tests, branches and pull requests inside these repos are expected day-to-day work"
+    ]
+  }
+}

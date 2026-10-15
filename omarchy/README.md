@@ -138,6 +138,14 @@ sudo patch /usr/bin/omarchy-agent-usage-codex omarchy/patches/omarchy-agent-usag
 
 An Omarchy update overwrites that file. Reapply the patch if the tab starts flickering again; drop it once the collector or Codex is fixed upstream.
 
+## 9. Coding agents
+
+Same rules, Claude Code settings and global skills as the Mac. From the repo root (needs Node from mise for the skills):
+
+```sh
+agents/install.sh
+```
+
 ## Not configured
 
 - Docker: installed, but `docker.service` is disabled and the user is not in the `docker` group.
