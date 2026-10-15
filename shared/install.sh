@@ -7,25 +7,8 @@ set -euo pipefail
 MACHINE="${1:?usage: shared/install.sh <mac|omarchy>}"
 SHARED_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SHARED_DIR")"
-BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d%H%M%S)"
-
-log() { printf '\033[1;34m==>\033[0m %s\n' "$1"; }
-
-link_file() {
-  local src="$1"
-  local dst="$2"
-
-  mkdir -p "$(dirname "$dst")"
-
-  if [[ -e "$dst" && ! -L "$dst" ]]; then
-    log "Backing up $dst -> $BACKUP_DIR/"
-    mkdir -p "$BACKUP_DIR"
-    mv "$dst" "$BACKUP_DIR/"
-  fi
-
-  ln -sfn "$src" "$dst"
-  log "Symlink: $dst -> $src"
-}
+# shellcheck source=shared/lib.sh
+source "$SHARED_DIR/lib.sh"
 
 # ---------------------------------------------------------------------------
 # 1. Git (shared config + this machine's signing setup)
@@ -39,9 +22,7 @@ link_file "$DOTFILES_DIR/$MACHINE/git/machine" "$HOME/.config/git/machine"
 if [[ -L "$HOME/.gitconfig" ]]; then
   rm "$HOME/.gitconfig"
 elif [[ -e "$HOME/.gitconfig" ]]; then
-  log "Backing up $HOME/.gitconfig -> $BACKUP_DIR/"
-  mkdir -p "$BACKUP_DIR"
-  mv "$HOME/.gitconfig" "$BACKUP_DIR/"
+  backup_path "$HOME/.gitconfig"
 fi
 
 # ---------------------------------------------------------------------------

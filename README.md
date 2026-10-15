@@ -37,7 +37,7 @@ git clone https://github.com/aka-cronos/dotfiles.git ~/Code/dotfiles
 
 It runs every step that does not need sudo, including `shared/install.sh omarchy`. Packages, sudo steps and sign-ins are in [`omarchy/README.md`](omarchy/README.md).
 
-Both scripts are idempotent and back up any real file they replace into `~/.dotfiles-backup-<timestamp>/`.
+Both scripts are idempotent and back up any real file they replace into `~/.dotfiles-backup-<timestamp>-<pid>/`, keeping its path under `$HOME`.
 
 ## Shared config
 
@@ -59,7 +59,7 @@ Claude Code may rewrite `~/.claude/settings.json` (for example after `/config`).
 
 ## Editing
 
-The machines symlink back to this repo, so edit the files in here; the repo is the source of truth. Commit the change as usual and pull on the other machine. New files or links need the setup script rerun.
+The machines symlink back to this repo, so edit the files in here; the repo is the source of truth. Commit the change as usual and pull on the other machine. Rerun the setup script after adding files or links, and on the PC after changing `omarchy/systemd/` (those units are copied, not linked).
 
 ## What is left out (on purpose)
 

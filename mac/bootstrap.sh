@@ -5,9 +5,8 @@ set -euo pipefail
 
 MAC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$MAC_DIR")"
-BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d%H%M%S)"
-
-log() { printf '\033[1;34m==>\033[0m %s\n' "$1"; }
+# shellcheck source=shared/lib.sh
+source "$DOTFILES_DIR/shared/lib.sh"
 
 # ---------------------------------------------------------------------------
 # 1. Homebrew
@@ -32,22 +31,6 @@ brew bundle --file="$MAC_DIR/Brewfile"
 # ---------------------------------------------------------------------------
 # 3. Mac symlinks
 # ---------------------------------------------------------------------------
-link_file() {
-  local src="$1"
-  local dst="$2"
-
-  mkdir -p "$(dirname "$dst")"
-
-  if [[ -e "$dst" && ! -L "$dst" ]]; then
-    log "Backing up $dst -> $BACKUP_DIR/"
-    mkdir -p "$BACKUP_DIR"
-    mv "$dst" "$BACKUP_DIR/"
-  fi
-
-  ln -sfn "$src" "$dst"
-  log "Symlink: $dst -> $src"
-}
-
 log "Creating symlinks..."
 link_file "$MAC_DIR/zsh/zshrc" "$HOME/.zshrc"
 link_file "$MAC_DIR/zsh/zprofile" "$HOME/.zprofile"

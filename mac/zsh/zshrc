@@ -5,9 +5,13 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# User PATH entries go before the modules, so mise (70-tools.zsh) can put
+# its tools ahead of them.
+export PNPM_HOME="$HOME/Library/pnpm"
 typeset -U path PATH
 path=(
   "$HOME/.local/bin"
+  "$PNPM_HOME"
   $path
 )
 export PATH
@@ -22,11 +26,3 @@ for file in \
   [[ -f "$file" ]] && source "$file"
 done
 
-# pnpm
-export PNPM_HOME="$HOME/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-export PATH="$HOME/.local/bin:$PATH"

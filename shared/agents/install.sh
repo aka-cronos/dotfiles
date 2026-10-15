@@ -5,25 +5,8 @@
 set -euo pipefail
 
 AGENTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d%H%M%S)"
-
-log() { printf '\033[1;34m==>\033[0m %s\n' "$1"; }
-
-link_file() {
-  local src="$1"
-  local dst="$2"
-
-  mkdir -p "$(dirname "$dst")"
-
-  if [[ -e "$dst" && ! -L "$dst" ]]; then
-    log "Backing up $dst -> $BACKUP_DIR/"
-    mkdir -p "$BACKUP_DIR"
-    mv "$dst" "$BACKUP_DIR/"
-  fi
-
-  ln -sfn "$src" "$dst"
-  log "Symlink: $dst -> $src"
-}
+# shellcheck source=shared/lib.sh
+source "$(dirname "$AGENTS_DIR")/lib.sh"
 
 # ---------------------------------------------------------------------------
 # 1. Global rules: ~/.agents/AGENTS.md, shared by every agent's global file

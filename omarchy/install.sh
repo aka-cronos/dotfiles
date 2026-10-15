@@ -6,25 +6,8 @@ set -euo pipefail
 
 OMARCHY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$OMARCHY_DIR")"
-BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d%H%M%S)"
-
-log() { printf '\033[1;34m==>\033[0m %s\n' "$1"; }
-
-link_file() {
-  local src="$1"
-  local dst="$2"
-
-  mkdir -p "$(dirname "$dst")"
-
-  if [[ -e "$dst" && ! -L "$dst" ]]; then
-    log "Backing up $dst -> $BACKUP_DIR/"
-    mkdir -p "$BACKUP_DIR"
-    mv "$dst" "$BACKUP_DIR/"
-  fi
-
-  ln -sfn "$src" "$dst"
-  log "Symlink: $dst -> $src"
-}
+# shellcheck source=shared/lib.sh
+source "$DOTFILES_DIR/shared/lib.sh"
 
 # ---------------------------------------------------------------------------
 # 1. Git signing key (on disk, so agents can sign while nobody is at the desk)
@@ -61,15 +44,19 @@ link_file "$OMARCHY_DIR/hypr/looknfeel.lua" "$HOME/.config/hypr/looknfeel.lua"
 link_file "$OMARCHY_DIR/hypr/monitors.lua" "$HOME/.config/hypr/monitors.lua"
 if command -v hyprctl >/dev/null 2>&1 && [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
   hyprctl reload >/dev/null
+else
+  HYPR_RELOAD_PENDING=1
 fi
 
 # ---------------------------------------------------------------------------
 # 5. Cursor collector for the bar's agents panel
 # ---------------------------------------------------------------------------
 link_file "$OMARCHY_DIR/bin/omarchy-agent-usage-cursor" "$HOME/.local/bin/omarchy-agent-usage-cursor"
-# systemd does not enable units that are symlinks into a repo: copy them.
-mkdir -p "$HOME/.config/systemd/user"
-install -m 644 "$OMARCHY_DIR"/systemd/omarchy-agent-usage-cursor.{service,timer} "$HOME/.config/systemd/user/"
+# systemd does not enable units that are symlinks into a repo: copy them
+# (rerun this script after changing them).
+for unit in omarchy-agent-usage-cursor.service omarchy-agent-usage-cursor.timer; do
+  copy_file "$OMARCHY_DIR/systemd/$unit" "$HOME/.config/systemd/user/$unit" 644
+done
 systemctl --user daemon-reload
 systemctl --user enable --now omarchy-agent-usage-cursor.timer
 
@@ -81,6 +68,10 @@ cat <<'EOF'
 ==> PC setup complete. Open a new terminal to load the shell changes.
     Steps that need sudo or a sign-in are in omarchy/README.md.
 EOF
+
+if [[ -n "${HYPR_RELOAD_PENDING:-}" ]]; then
+  log "Not inside the desktop session: run 'hyprctl reload' there (or log out and in)."
+fi
 
 if [[ -n "${NEW_SIGNING_KEY:-}" ]]; then
   cat <<EOF
