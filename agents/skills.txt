@@ -1,0 +1,5 @@
+# Global agent skills, installed by install.sh with `npx skills add <source> --skill <name> -g`.
+# Full catalog of what was removed on 2026-10-14 and how to reinstall it: see skills-catalog.md.
+# Format: <source> <skill> [<skill> ...]
+aka-cronos/skills commit-workflow create-pull-request
+mattpocock/skills code-review codebase-design domain-modeling grill-me grill-with-docs grilling handoff implement improve-codebase-architecture prototype research setup-matt-pocock-skills tdd to-spec to-tickets wayfinder writing-for-agents

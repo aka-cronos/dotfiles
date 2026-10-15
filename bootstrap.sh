@@ -94,7 +94,13 @@ if command -v mise >/dev/null 2>&1; then
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Manual steps
+# 6. Coding agents (rules, Claude Code settings, global skills)
+# ---------------------------------------------------------------------------
+log "Setting up coding agents..."
+"$DOTFILES_DIR/agents/install.sh"
+
+# ---------------------------------------------------------------------------
+# 7. Manual steps
 # ---------------------------------------------------------------------------
 cat <<'EOF'
 
@@ -114,7 +120,7 @@ cat <<'EOF'
      blocks for private machines. ssh/config already includes it.
   5. Open each installed app at least once to grant system
      permissions (accessibility, notifications, etc.).
-  6. If you want your Claude Code / Cursor skills:
-       npx skills add aka-cronos/skills -g
+  6. Paste agents/AGENTS.md into Cursor > Settings > Rules > User Rules
+     (once per Cursor account; it syncs to every machine).
 
 EOF

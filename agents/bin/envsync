@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# envsync — regenerate a project's env files from 1Password templates.
+#
+# Finds every *.tpl file in the current git repo that contains op:// references
+# and renders it next to itself without the .tpl suffix (X.tpl -> X), mode 600.
+# Reads the vault `dev` with this machine's read-only service account, so it
+# never triggers the desktop-app approval prompt. Secret values are never printed.
+#
+# Token source:
+#   Linux: ~/.config/op-sa/cronos-pc-dev (mode 600)
+#   macOS: Keychain item with service "cronos-macbook-dev"
+#   Override with ENVSYNC_TOKEN_FILE=<path>.
+#
+# Usage: envsync [--dry-run]
+# Portable to macOS's bash 3.2 and BSD userland.
+set -euo pipefail
+
+die() { printf 'envsync: %s\n' "$*" >&2; exit 1; }
+
+dry_run=0
+case "${1:-}" in
+  "") ;;
+  -n|--dry-run) dry_run=1 ;;
+  -h|--help) sed -n '2,15s/^# \{0,1\}//p' "$0"; exit 0 ;;
+  *) die "unknown argument: $1 (try --help)" ;;
+esac
+
+load_token() {
+  if [[ -n "${ENVSYNC_TOKEN_FILE:-}" ]]; then
+    [[ -r "$ENVSYNC_TOKEN_FILE" ]] || die "token file not found: $ENVSYNC_TOKEN_FILE"
+    cat "$ENVSYNC_TOKEN_FILE"
+  elif [[ "$(uname -s)" == Darwin ]]; then
+    security find-generic-password -a "$USER" -s cronos-macbook-dev -w 2>/dev/null \
+      || die "no Keychain item 'cronos-macbook-dev' (security add-generic-password -a \"\$USER\" -s cronos-macbook-dev -w)"
+  else
+    local f="$HOME/.config/op-sa/cronos-pc-dev"
+    [[ -r "$f" ]] || die "service account token not found at $f"
+    cat "$f"
+  fi
+}
+
+command -v op >/dev/null || die "1Password CLI (op) not found"
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || die "not inside a git repo"
+cd "$root"
+
+# Tracked and untracked-but-not-ignored templates that reference 1Password.
+templates=()
+while IFS= read -r -d '' tpl; do
+  grep -q 'op://' -- "$tpl" 2>/dev/null && templates+=("$tpl")
+done < <(git ls-files -z --cached --others --exclude-standard -- '*.tpl')
+count=${#templates[@]}
+(( count > 0 )) || die "no *.tpl files with op:// references in $root"
+
+# Refuse to write a secrets file git would pick up.
+for tpl in "${templates[@]}"; do
+  out="${tpl%.tpl}"
+  git check-ignore -q -- "$out" || die "$out is not gitignored; refusing to write secrets there"
+done
+
+if (( dry_run )); then
+  for tpl in "${templates[@]}"; do printf '%s -> %s\n' "$tpl" "${tpl%.tpl}"; done
+  exit 0
+fi
+
+token="$(load_token)"
+[[ -n "$token" ]] || die "service account token is empty"
+
+umask 077
+failed=0
+for tpl in "${templates[@]}"; do
+  out="${tpl%.tpl}"
+  tmp="$(mktemp "$(dirname "$out")/.envsync.XXXXXX")"
+  # Token goes only to this op process; stdout/stderr never carry secret values.
+  if OP_SERVICE_ACCOUNT_TOKEN="$token" op inject -f -i "$tpl" -o "$tmp" >/dev/null; then
+    chmod 600 "$tmp"
+    mv -f "$tmp" "$out"
+    printf 'envsync: wrote %s\n' "$out"
+  else
+    rm -f "$tmp"
+    printf 'envsync: FAILED %s (see op error above)\n' "$tpl" >&2
+    failed=1
+  fi
+done
+unset token
+
+exit "$failed"
