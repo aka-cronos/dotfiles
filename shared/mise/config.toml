@@ -1,14 +1,11 @@
 # Shared toolchain for both machines; linked as ~/.config/mise/config.toml.
-# Update everything with `mise up`.
+# Update everything with `mise up`. Coding agent CLIs (claude, codex,
+# cursor-agent) are not here: shared/install.sh uses their own installers.
 
 [tools]
 node = "26"
 pnpm = "latest"
 gh = "latest"
-claude = "latest"
-codex = "latest"
-# cursor-agent has no mise backend; install it from Cursor's own tarballs.
-cursor-agent = { version = "latest", bin_path = "bin", strip_components = 0, url = 'https://downloads.cursor.com/lab/{{ version }}/{{ os(macos="darwin") }}/{{ arch(x64="x64", arm64="arm64") }}/agent-cli-package.tar.gz', version_list_url = "https://cursor.com/install", version_regex = 'downloads\.cursor\.com/lab/([0-9]{4}\.[0-9]{2}\.[0-9]{2}-[0-9a-f]+)/', postinstall = 'mkdir -p "$MISE_TOOL_INSTALL_PATH/bin" && ln -sfn ../dist-package/cursor-agent "$MISE_TOOL_INSTALL_PATH/bin/cursor-agent"' }
 
 [settings]
 # Projects with .nvmrc / .node-version pick their own Node.

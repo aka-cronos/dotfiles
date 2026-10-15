@@ -7,7 +7,7 @@ dotfiles/
 ├── shared/              # used by both machines; shared/install.sh links it
 │   ├── agents/          # agent rules, Claude Code settings, global skills, envsync
 │   ├── git/             # gitconfig, global ignore; allowed_signers is local only
-│   ├── mise/            # toolchain: node, pnpm, gh, claude, codex, cursor-agent
+│   ├── mise/            # toolchain: node, pnpm, gh
 │   └── shell/           # aliases.sh, sourced by zsh (Mac) and bash (PC)
 ├── mac/                 # bootstrap.sh, Brewfile, zsh, p10k, ghostty, ssh, git signing
 ├── omarchy/             # install.sh, README (sudo steps), bash additions, prompt,
@@ -45,6 +45,7 @@ Both scripts are idempotent and back up any real file they replace into `~/.dotf
 
 - **Git**: `shared/git/gitconfig` as `~/.config/git/config` (identity, defaults, `gh` credentials). It includes `~/.config/git/machine`, linked to `<machine>/git/machine`, which holds the signing key: 1Password on the Mac, a key on disk on the PC so agents can sign unattended.
 - **mise**: `shared/mise/config.toml`, then `mise install`. `mise up` updates everything. Projects with `.nvmrc` or `.node-version` pick their own Node.
+- **Agent CLIs**: `claude`, `codex` and `cursor-agent` come from their official installers into `~/.local/bin` (skipped if already there). Each updates itself (`claude update`, `codex update`, `cursor-agent update`), and T3 Code can update Claude and Codex from its providers screen; it can't do that for tools installed by mise.
 - **Shell**: `shared/shell/aliases.sh` (git aliases, `code` for Cursor, open new shells in the code folder). Keep it valid in both zsh and bash.
 - **Agents**: `shared/agents/install.sh`, see below.
 

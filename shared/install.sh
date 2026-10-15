@@ -26,7 +26,7 @@ elif [[ -e "$HOME/.gitconfig" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 2. Toolchain (mise: node, pnpm, gh, claude, codex, cursor-agent)
+# 2. Toolchain (mise: node, pnpm, gh)
 # ---------------------------------------------------------------------------
 link_file "$SHARED_DIR/mise/config.toml" "$HOME/.config/mise/config.toml"
 
@@ -37,6 +37,29 @@ if command -v mise >/dev/null 2>&1; then
 else
   log "mise not found: skipping tools"
 fi
+
+# Coding agent CLIs come from their own installers into ~/.local/bin, so they
+# update themselves and T3 Code can update them from its providers screen.
+install_agent_cli() {
+  local name="$1" url="$2" shell="$3"
+  local bin="$HOME/.local/bin/$name"
+  # Omarchy ships launchers here that run the CLI through mise (and add it
+  # back to the global mise config): replace them.
+  if [[ -f "$bin" && ! -L "$bin" ]] && grep -q 'mise x' "$bin"; then
+    log "Replacing Omarchy's mise launcher for $name"
+    rm "$bin"
+  fi
+  if [[ -x "$bin" ]]; then
+    log "$name already installed"
+    return
+  fi
+  log "Installing $name..."
+  curl -fsSL "$url" | "$shell"
+}
+install_agent_cli claude https://claude.ai/install.sh bash
+install_agent_cli codex https://chatgpt.com/codex/install.sh sh
+install_agent_cli cursor-agent https://cursor.com/install bash
+export PATH="$HOME/.local/bin:$PATH"
 
 # ---------------------------------------------------------------------------
 # 3. Shell aliases (sourced by zsh on the Mac and bash on the PC)
