@@ -10,6 +10,10 @@ Repo rules (`AGENTS.md`, `.agents/rules/`) override these.
 - When I have to choose on tooling or infra, explain each option in 2–3 plain
   lines (what changes for me), recommend one, and let me confirm. No jargon menus.
 - When planning, ask one question at a time, each with your recommendation and why.
+- Every issue or PR you mention carries its title and one line on what it asks
+  for, before what you did or propose: `#507 "SSR renders transaction days in
+  UTC" — evening transactions land on the wrong day → brief posted`. I judge
+  your decision against the request, so I need both.
 
 ## What you need from me
 
