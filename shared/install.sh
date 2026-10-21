@@ -38,6 +38,14 @@ else
   log "mise not found: skipping tools"
 fi
 
+# Don't install package versions published less than a day ago: compromised
+# releases (npm worms like Shai-Hulud) are usually caught and pulled within
+# hours. Bypass once with `pnpm add <pkg> --config.minimum-release-age=0`.
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm config set minimum-release-age 1440 --global
+  log "pnpm: minimum-release-age 1440 (minutes)"
+fi
+
 # Coding agent CLIs come from their own installers into ~/.local/bin, so they
 # update themselves and T3 Code can update them from its providers screen.
 install_agent_cli() {
