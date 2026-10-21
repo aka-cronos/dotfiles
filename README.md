@@ -44,7 +44,7 @@ Both scripts are idempotent and back up any real file they replace into `~/.dotf
 `shared/install.sh <mac|omarchy>` links:
 
 - **Git**: `shared/git/gitconfig` as `~/.config/git/config` (identity, defaults, `gh` credentials). It includes `~/.config/git/machine`, linked to `<machine>/git/machine`, which holds the signing key: 1Password on the Mac, a key on disk on the PC so agents can sign unattended.
-- **mise**: `shared/mise/config.toml`, then `mise install`. `mise up` updates everything. Projects with `.nvmrc` or `.node-version` pick their own Node.
+- **mise**: `shared/mise/config.toml`, then `mise install`. `mise up` updates everything. Projects with `.nvmrc` or `.node-version` pick their own Node. It also sets pnpm's global `minimum-release-age` to 1440 minutes, so pnpm won't install a version published less than a day ago.
 - **Agent CLIs**: `claude`, `codex` and `cursor-agent` come from their official installers into `~/.local/bin` (skipped if already there). Each updates itself (`claude update`, `codex update`, `cursor-agent update`), and T3 Code can update Claude and Codex from its providers screen; it can't do that for tools installed by mise.
 - **Shell**: `shared/shell/aliases.sh` (git aliases, `code` for Cursor, open new shells in the code folder). Keep it valid in both zsh and bash.
 - **Agents**: `shared/agents/install.sh`, see below.
