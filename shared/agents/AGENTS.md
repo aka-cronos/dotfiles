@@ -32,6 +32,9 @@ language of the conversation):
   still running.
 - Never bury a request in the middle of an update.
 - Delegated tasks and subagents skip this section and report to their caller.
+- During a long batch (fix-wave, triage-wave, or any skill that defines its own
+  checkpoints), an interim update while other work still runs is one line and
+  skips this section; the section goes only at the skill's checkpoints.
 
 ## Git
 
