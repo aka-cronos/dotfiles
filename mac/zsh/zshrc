@@ -12,6 +12,7 @@ typeset -U path PATH
 path=(
   "$HOME/.local/bin"
   "$PNPM_HOME"
+  "$HOME/.grok/bin"
   $path
 )
 export PATH
