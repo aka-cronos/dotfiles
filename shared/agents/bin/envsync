@@ -3,13 +3,17 @@
 #
 # Finds every *.tpl file in the current git repo that contains op:// references
 # and renders it next to itself without the .tpl suffix (X.tpl -> X), mode 600.
-# Reads the vault `dev` with this machine's read-only service account, so it
-# never triggers the desktop-app approval prompt. Secret values are never printed.
+# Reads the one vault the templates reference with a read-only service account
+# for that vault, so it never triggers the desktop-app approval prompt. Secret
+# values are never printed.
 #
-# Token source:
+# Token source, for the shared vault `dev`:
 #   Linux: ~/.config/op-sa/cronos-pc-dev (mode 600)
 #   macOS: Keychain item with service "cronos-macbook-dev"
-#   Override with ENVSYNC_TOKEN_FILE=<path>.
+# For a project vault <vault> (its own service account):
+#   Linux: ~/.config/op-sa/<vault> (mode 600)
+#   macOS: Keychain item with service "op-sa-<vault>"
+# Override with ENVSYNC_TOKEN_FILE=<path>.
 #
 # Usage: envsync [--dry-run]
 # Portable to macOS's bash 3.2 and BSD userland.
@@ -26,14 +30,22 @@ case "${1:-}" in
 esac
 
 load_token() {
+  local vault="$1" service file
+  if [[ "$vault" == dev ]]; then
+    service=cronos-macbook-dev
+    file="$HOME/.config/op-sa/cronos-pc-dev"
+  else
+    service="op-sa-$vault"
+    file="$HOME/.config/op-sa/$vault"
+  fi
   if [[ -n "${ENVSYNC_TOKEN_FILE:-}" ]]; then
     [[ -r "$ENVSYNC_TOKEN_FILE" ]] || die "token file not found: $ENVSYNC_TOKEN_FILE"
     cat "$ENVSYNC_TOKEN_FILE"
   elif [[ "$(uname -s)" == Darwin ]]; then
-    security find-generic-password -a "$USER" -s cronos-macbook-dev -w 2>/dev/null \
-      || die "no Keychain item 'cronos-macbook-dev' (security add-generic-password -a \"\$USER\" -s cronos-macbook-dev -w)"
+    security find-generic-password -a "$USER" -s "$service" -w 2>/dev/null \
+      || die "no Keychain item '$service' (security add-generic-password -a \"\$USER\" -s $service -w)"
   else
-    local f="$HOME/.config/op-sa/cronos-pc-dev"
+    local f="$file"
     [[ -r "$f" ]] || die "service account token not found at $f"
     cat "$f"
   fi
@@ -57,12 +69,20 @@ for tpl in "${templates[@]}"; do
   git check-ignore -q -- "$out" || die "$out is not gitignored; refusing to write secrets there"
 done
 
+# One vault per repo: its service account reads only that vault.
+vaults="$(grep -ho 'op://[^/[:space:]]*' -- "${templates[@]}" | sed 's|^op://||' | sort -u)"
+[[ -n "$vaults" ]] || die "no vault found in op:// references"
+[[ "$(printf '%s\n' "$vaults" | wc -l | tr -d ' ')" == 1 ]] \
+  || die "templates reference several vaults ($(printf '%s' "$vaults" | tr '\n' ' ')); use one vault per repo"
+vault="$vaults"
+
 if (( dry_run )); then
+  printf 'vault: %s\n' "$vault"
   for tpl in "${templates[@]}"; do printf '%s -> %s\n' "$tpl" "${tpl%.tpl}"; done
   exit 0
 fi
 
-token="$(load_token)"
+token="$(load_token "$vault")"
 [[ -n "$token" ]] || die "service account token is empty"
 
 umask 077
