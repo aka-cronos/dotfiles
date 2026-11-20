@@ -28,6 +28,7 @@ End every turn with a short section headed "**Lo que necesito de ti**" (in the l
 - Never commit or push to `main`; every change reaches `main` through a PR.
 - Don't commit unless I ask or the repo's rules say to.
 - Don't hard-wrap prose in markdown docs: one paragraph or list item per line; editors soft-wrap. Commit messages keep their 72-character limit.
+- Stacked PRs use GitHub's native stack: after a lower PR squash-merges, GitHub retargets the upper ones; leave them as they are. After pushing a commit to a lower branch, rebase every branch above it onto the new tip (`git rebase --onto <new lower> <old lower tip> <branch>`), run the checks and `push --force-with-lease`.
 
 ## Issues and research
 
