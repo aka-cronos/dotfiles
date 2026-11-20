@@ -56,3 +56,7 @@ Repos keep gitignored env files (`.env.local`, …) rendered from committed `*.t
 - I orchestrate from T3 Code: Claude, Codex and Cursor (Grok) run as agents and subagents.
 - MacBook (macOS) and `cronos-pc` (Omarchy Linux, always on, runs agents). Reach the PC with `ssh cronos-pc`. `sudo` there needs my password, so ask me to run system-level commands (`ssh -t cronos-pc <cmd>`).
 - Repos live in `~/Documents/Code` on the Mac and in `~/Code` on `cronos-pc`. Clone and keep work files there; the home folder holds no repos.
+
+## Cloudflare
+
+- Use the `cf` CLI for Cloudflare, unless the project has a Wrangler configuration file.
