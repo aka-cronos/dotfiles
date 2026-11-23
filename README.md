@@ -5,7 +5,7 @@ Reproducible personal configuration for two machines: a Mac (zsh, Homebrew) and 
 ```
 dotfiles/
 ├── shared/              # used by both machines; shared/install.sh links it
-│   ├── agents/          # agent rules, Claude Code settings, global skills, envsync
+│   ├── agents/          # envsync, and the call to agent-process's installer
 │   ├── git/             # gitconfig, global ignore; allowed_signers is local only
 │   ├── mise/            # toolchain: node, pnpm, gh
 │   └── shell/           # aliases.sh, sourced by zsh (Mac) and bash (PC)
@@ -51,12 +51,8 @@ Both scripts are idempotent and back up any real file they replace into `~/.dotf
 
 ## Agents
 
-- `shared/agents/AGENTS.md` is the global rule file, linked as `~/.agents/AGENTS.md`. Each agent's global file links there: `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`. Cursor has no global rule file, so it only follows each repo's `AGENTS.md`. Repo rules override it.
-- `shared/agents/claude/` holds Claude Code's `settings.json` and status line script.
-- `shared/agents/skills.txt` lists the global skills; the script installs any that are missing into `~/.agents/skills`, which Claude Code, Codex and Cursor all read. `skills-catalog.md` records every skill removed in the 2026-10-14 cleanup and how to reinstall it.
+- Global rules, Claude Code's settings and the global skills live in the private repo `aka-cronos/agent-process`, which installs them in Claude Code, Codex, Cursor and Antigravity. `shared/agents/install.sh` clones it into the code folder if it is missing and runs its `scripts/install.sh`. Its README says how to change a rule or a skill.
 - `shared/agents/bin/envsync` renders a repo's env files from 1Password templates (`~/.local/bin/envsync`).
-
-Claude Code may rewrite `~/.claude/settings.json` (for example after `/config`). If `ls -la ~/.claude/settings.json` no longer shows a symlink, copy the changes you want into `shared/agents/claude/settings.json` and rerun the script.
 
 ## Editing
 
