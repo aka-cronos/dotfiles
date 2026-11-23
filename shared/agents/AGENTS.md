@@ -55,7 +55,9 @@ Repos keep gitignored env files (`.env.local`, …) rendered from committed `*.t
 ## Machines and workflow
 
 - I orchestrate from T3 Code: Claude, Codex and Cursor (Grok) run as agents and subagents.
-- MacBook (macOS) and `cronos-pc` (Omarchy Linux, always on, runs agents). Reach the PC with `ssh cronos-pc`. `sudo` there needs my password, so ask me to run system-level commands (`ssh -t cronos-pc <cmd>`).
+- MacBook (`cronos-mac`, macOS) and `cronos-pc` (Omarchy Linux, always on, runs agents). T3 Code links them both ways with full access.
+- To read or run anything on the other machine, use T3 Code first: `t3_environment_links` gives its `environmentId`; pass it to `t3_thread_*` tools, or to `delegate_task` (`target.environmentId`) to run commands there. Don't conclude the other machine is unreachable before trying this.
+- SSH is the fallback, and only works from the Mac to the PC (`ssh cronos-pc`). The Mac has Remote Login off, so don't SSH into it. `sudo` on the PC needs my password, so ask me to run system-level commands (`ssh -t cronos-pc <cmd>`).
 - Repos live in `~/Documents/Code` on the Mac and in `~/Code` on `cronos-pc`. Clone and keep work files there; the home folder holds no repos.
 
 ## Cloudflare
